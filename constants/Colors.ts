@@ -1,19 +1,11 @@
-const tintColorLight = '#2f95dc';
-const tintColorDark = '#fff';
+// File: constants/Colors.ts
 
-export default {
-  light: {
-    text: '#000',
-    background: '#fff',
-    tint: tintColorLight,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#fff',
-    background: '#000',
-    tint: tintColorDark,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
-  },
+export const COLORS = {
+  background: '#AED6F1', // Biru muda yang lebih pekat
+  card: '#FFFFFF',       // Putih untuk kartu
+  primary: '#007BFF',    // Biru utama untuk tombol & header
+  text: '#212529',       // Hitam untuk teks
+  textSecondary: '#6C757D', // Abu-abu untuk teks (tahun)
+  danger: '#DC3545',     // Merah untuk tombol hapus
+  star: '#FFC107',       // Kuning untuk bintang rating
 };

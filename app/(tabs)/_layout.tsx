@@ -1,57 +1,54 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+// File: app/(tabs)/_layout.tsx
+// (MODIFIKASI: Menambahkan 'tabBarIcon' untuk HAPUS PANAH & ganti logo)
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { Tabs, useRouter } from 'expo-router';
+import { COLORS } from '../../constants/Colors';
+// 1. IMPORT library ikonnya
+import { Ionicons } from '@expo/vector-icons'; 
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function TabsLayout() {
+  const router = useRouter();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
+        headerShown: false,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarStyle: {
+          backgroundColor: COLORS.card,
+        },
+        // 2. (OPSIONAL) Kalau mau HILANGKAN TULISAN "Home" & "Tambah Film"
+        //    dan cuma nampilin ikon, uncomment (hapus //) baris di bawah:
+        // tabBarShowLabel: false, 
+      }}
+    >
+      {/* ============ TAB HOME (index) ============ */}
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+          title: 'Home',
+          // 3. PASANG IKON DI SINI (Ini akan gantiin panah)
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
+
+      {/* ============ TAB TAMBAH FILM (create) ============ */}
       <Tabs.Screen
-        name="two"
+        name="create"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Tambah Film',
+          // 4. PASANG IKON DI SINI JUGA (Ini akan gantiin panah)
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="add-circle-outline" size={size} color={color} />
+          ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push('/(tabs)/create');
+          },
         }}
       />
     </Tabs>

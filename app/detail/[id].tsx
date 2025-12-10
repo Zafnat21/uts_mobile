@@ -1,18 +1,22 @@
 // File: app/detail/[id].tsx
-// (MODIFIKASI: Ganti tombol Favorite -> Edit)
+// (FIXED: Menambahkan Safe Area di bawah biar tombol gak ketutup navigasi HP)
 
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+// 1. IMPORT library Safe Area
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { COLORS } from '../../constants/Colors';
 import { useEntries } from '../../src/context/EntriesContext';
 
 export default function DetailScreen() {
   const router = useRouter();
   const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
-  
-  // HAPUS: toggleFavorite
   const { getById, deleteFilm } = useEntries();
+  
+  // 2. AMBIL data jarak aman (insets) dari HP user
+  const insets = useSafeAreaInsets();
 
   const film = getById(id!);
 
@@ -36,9 +40,7 @@ export default function DetailScreen() {
     );
   };
 
-  // TAMBAH: Fungsi untuk Edit
   const handleEdit = () => {
-    // Arahkan ke halaman create, kirim 'id' sebagai parameter
     router.push({
       pathname: '/(tabs)/create',
       params: { id: film.id },
@@ -48,7 +50,16 @@ export default function DetailScreen() {
   return (
     <>
       <Stack.Screen options={{ title: title ?? film.title }} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 12, backgroundColor: COLORS.background, flexGrow: 1 }}>
+      <ScrollView 
+        contentContainerStyle={{ 
+          padding: 16, 
+          gap: 12, 
+          backgroundColor: COLORS.background, 
+          flexGrow: 1,
+          // 3. TAMBAHKAN padding bawah otomatis + 20px biar lega
+          paddingBottom: insets.bottom + 20 
+        }}
+      >
         <Image
           source={{ uri: film.posterUrl }}
           style={styles.poster}
@@ -66,7 +77,6 @@ export default function DetailScreen() {
         <View style={{ flex: 1 }} />
         
         <View style={styles.buttonContainer}>
-          {/* GANTI: Tombol Favorite -> Tombol Edit */}
           <Pressable
             onPress={handleEdit}
             style={styles.editButton}
@@ -88,7 +98,6 @@ export default function DetailScreen() {
   );
 }
 
-// GANTI: 'favoriteButton' styles -> 'editButton' styles
 const styles = {
   poster: {
     width: '80%',
@@ -99,15 +108,15 @@ const styles = {
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '700' as '700', // Fix tipe data font weight
     color: COLORS.text,
-    textAlign: 'center'
+    textAlign: 'center' as 'center'
   },
   rating: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 'bold' as 'bold',
     color: COLORS.star,
-    textAlign: 'center'
+    textAlign: 'center' as 'center'
   },
   review: {
     fontSize: 16,
@@ -116,11 +125,11 @@ const styles = {
     marginTop: 8
   },
   buttonContainer: {
-    flexDirection: 'row',
+    flexDirection: 'row' as 'row',
     gap: 12,
     marginTop: 20,
   },
-  editButton: { // Ganti nama
+  editButton: {
     flex: 1,
     padding: 12,
     backgroundColor: COLORS.card,
@@ -128,10 +137,10 @@ const styles = {
     borderWidth: 1,
     borderRadius: 10,
   },
-  editButtonText: { // Ganti nama
+  editButtonText: {
     color: COLORS.primary,
-    textAlign: 'center',
-    fontWeight: 'bold'
+    textAlign: 'center' as 'center',
+    fontWeight: 'bold' as 'bold'
   },
   deleteButton: {
     flex: 1,
@@ -141,7 +150,7 @@ const styles = {
   },
   deleteButtonText: {
     color: '#fff',
-    textAlign: 'center',
-    fontWeight: 'bold'
+    textAlign: 'center' as 'center',
+    fontWeight: 'bold' as 'bold'
   },
 };

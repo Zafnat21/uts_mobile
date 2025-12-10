@@ -1,20 +1,24 @@
 // File: app/(tabs)/create.tsx
-// (MODIFIKASI: Menggunakan 'useFocusEffect' untuk 'membersihkan' form)
+// (FIXED: Menambahkan Safe Area Top biar judul gak ketutup Poni HP)
 
-import React, { useState, useCallback } from 'react';
-import { View, TextInput, Text, Pressable, ScrollView } from 'react-native';
-import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router'; // Pastikan 'useFocusEffect' di-import
-import { useEntries } from '../../src/context/EntriesContext';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+// 1. IMPORT library Safe Area
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { COLORS } from '../../constants/Colors';
+import { useEntries } from '../../src/context/EntriesContext';
 
 export default function CreateEntryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ id: string }>();
-  // Kita cek 'params.id' di dalam 'useFocusEffect' saja
+  
+  // 2. AMBIL data jarak aman (insets)
+  const insets = useSafeAreaInsets();
   
   const { addFilm, getById, updateFilm } = useEntries();
   
-  // Inisialisasi state KOSONG
   const [title, setTitle] = useState('');
   const [releaseYear, setReleaseYear] = useState('');
   const [review, setReview] = useState('');
@@ -22,31 +26,27 @@ export default function CreateEntryScreen() {
   const [userRating, setUserRating] = useState(0); 
   const [currentFilmId, setCurrentFilmId] = useState<number | null>(null);
 
-  // Gunakan 'useFocusEffect' untuk mereset state
   useFocusEffect(
     useCallback(() => {
-      // Cek 'params' terbaru SETIAP KALI halaman ini fokus
       const paramsId = params.id ? Number(params.id) : null;
       const film = paramsId ? getById(paramsId) : null;
       
-      setCurrentFilmId(paramsId); // Simpan ID saat ini
+      setCurrentFilmId(paramsId);
 
       if (film) {
-        // Mode Edit: Isi form
         setTitle(film.title);
         setReleaseYear(film.releaseYear);
         setReview(film.review);
         setPosterUrl(film.posterUrl);
         setUserRating(film.userRating);
       } else {
-        // Mode Tambah: Pastikan form KOSONG
         setTitle('');
         setReleaseYear('');
         setReview('');
         setPosterUrl('');
         setUserRating(0);
       }
-    }, [params.id, getById]) // 'Dengarkan' perubahan pada 'params.id'
+    }, [params.id, getById])
   );
 
   const canSave = title.trim().length > 0 && review.trim().length > 0 && userRating > 0;
@@ -62,7 +62,7 @@ export default function CreateEntryScreen() {
       userRating: userRating,
     };
 
-    if (currentFilmId) { // Gunakan 'currentFilmId' dari state
+    if (currentFilmId) {
       updateFilm(currentFilmId, filmData);
     } else {
       addFilm(filmData);
@@ -76,25 +76,39 @@ export default function CreateEntryScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: COLORS.background }} contentContainerStyle={{ padding: 16, gap: 16 }}>
+    <ScrollView 
+      style={{ flex: 1, backgroundColor: COLORS.background }} 
+      contentContainerStyle={{ 
+        padding: 16, 
+        gap: 16,
+        // 3. TAMBAHKAN Padding Atas & Bawah Otomatis
+        // insets.top = jarak aman dari poni
+        // insets.bottom = jarak aman dari garis home
+        paddingTop: insets.top + 20,    
+        paddingBottom: insets.bottom + 20 
+      }}
+    >
       <Text style={{ fontWeight: '700', fontSize: 20, color: COLORS.text, marginBottom: 10 }}>
         {currentFilmId ? 'Edit Film' : 'Tambah Film Baru'}
       </Text>
       
       <TextInput
         placeholder="Judul Film"
+        placeholderTextColor="#999" // Tambah ini biar placeholder keliatan di dark mode (opsional)
         value={title}
         onChangeText={setTitle}
         style={styles.input}
       />
       <TextInput
         placeholder="Tahun Rilis (Contoh: 2024)"
+        placeholderTextColor="#999"
         value={releaseYear}
         onChangeText={setReleaseYear}
         style={styles.input}
       />
       <TextInput
         placeholder="URL Poster Film"
+        placeholderTextColor="#999"
         value={posterUrl}
         onChangeText={setPosterUrl}
         style={styles.input}
@@ -117,6 +131,7 @@ export default function CreateEntryScreen() {
       
       <TextInput
         placeholder="Tulis review singkat..."
+        placeholderTextColor="#999"
         value={review}
         onChangeText={setReview}
         multiline
@@ -150,5 +165,6 @@ const styles = {
     padding: 10,
     backgroundColor: COLORS.card,
     fontSize: 16,
+    color: COLORS.text, // Pastikan teks input warnanya bener
   },
 };
